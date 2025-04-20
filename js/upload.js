@@ -1,6 +1,11 @@
 import { startProcessing } from './audio-processor.js';
 
+let uploadSetupDone = false;
+
 export function setupUpload() {
+  if (uploadSetupDone) return;
+  uploadSetupDone = true;
+  
   const uploadWidget = document.getElementById('uploadWidget');
   const audioFileInput = document.getElementById('audioFileInput');
   const uploadActions = document.getElementById('uploadActions');
@@ -35,22 +40,25 @@ export function setupUpload() {
     }
   });
 
-  // Click on widget also triggers file input
-  uploadWidget.addEventListener('click', () => {
-    audioFileInput.click();
-  });
-
   // Handle file selection
   function handleFileUpload(file) {
-    const validTypes = ['audio/wav', 'audio/mpeg', 'audio/flac', 'audio/aac', 'audio/mp4'];
+    if (!(file instanceof File)) {
+      alert("Something went wrong. Please select a proper file.");
+      return;
+    }
+  
+    const validTypes = ['audio/wav', 'audio/mpeg', 'audio/flac', 'audio/aac', 'audio/mp3'];
     const fileType = file.type;
-    
-    if (!validTypes.includes(fileType) && 
-        !(file.name.endsWith('.wav') || 
-          file.name.endsWith('.mp3') || 
-          file.name.endsWith('.flac') || 
-          file.name.endsWith('.aac'))) {
-      alert('Please select a valid audio file (WAV, MP3, FLAC, or AAC)');
+  
+    const hasValidExtension = (
+      file.name.endsWith('.wav') ||
+      file.name.endsWith('.mp3') ||
+      file.name.endsWith('.flac') ||
+      file.name.endsWith('.aac')
+    );
+  
+    if (!validTypes.includes(fileType) && !hasValidExtension) {
+      alert("Please select a valid audio file (WAV, MP3, FLAC, or AAC)");
       return;
     }
     

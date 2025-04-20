@@ -3,6 +3,7 @@ import { showResults, updateWaveforms } from './results.js';
 
 // Mock processing stages and messages
 const processingStages = [
+  { name: 'Uploading to server...', duration: 1500 },
   { name: 'Initializing...', duration: 500 },
   { name: 'Analyzing audio levels...', duration: 1500 },
   { name: 'Identifying noise patterns...', duration: 1800 },
@@ -10,6 +11,7 @@ const processingStages = [
   { name: 'Balancing audio levels...', duration: 1800 },
   { name: 'Removing reverb...', duration: 1500 },
   { name: 'Enhancing clarity...', duration: 1200 },
+  { name: 'Eualizing audio...', duration: 500 },
   { name: 'Finalizing audio...', duration: 1000 }
 ];
 
@@ -30,41 +32,58 @@ export function startProcessing(audioFile) {
 async function processAudioStages(audioFile) {
   let totalDuration = processingStages.reduce((sum, stage) => sum + stage.duration, 0);
   let elapsedTime = 0;
-  
-  // Process each stage
+
   for (let i = 0; i < processingStages.length; i++) {
     const stage = processingStages[i];
     updateProgress(stage.name, Math.round((elapsedTime / totalDuration) * 100));
-    
-    // Simulate processing time
     await sleep(stage.duration);
     elapsedTime += stage.duration;
   }
-  
-  // Complete processing
-  updateProgress('Ready!', 100);
-  
-  // In a real app, you would actually process the audio
-  // For this demo, we'll just use the original file as the "cleaned" version
-  // but in reality, you would send the file to a backend for processing
-  cleanedAudioUrl = originalAudioUrl;
-  
-  // Create audio context and decode audio for visualizing waveforms
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  
+
+  // 👇 Step 1: Send audio file to FastAPI
+  const formData = new FormData();
+  formData.append('file', audioFile);
+
+  let cleanedAudioBlob;
   try {
-    const arrayBuffer = await audioFile.arrayBuffer();
-    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    const response = await fetch('http://localhost:8000/clean-audio', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch cleaned audio');
+    }
+
+    updateProgress('Ready!', 100);
     
-    // Process complete - show results after a short delay
+    cleanedAudioBlob = await response.blob();
+    cleanedAudioUrl = URL.createObjectURL(cleanedAudioBlob);
+  } catch (err) {
+    console.error('Fetch error:', err);
+    alert('Backend error while cleaning audio. Try again later.');
+    hideProgressOverlay();
+    return;
+  }
+
+  // 👇 Step 2: Decode both original and cleaned audio
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  try {
+    const originalArrayBuffer = await audioFile.arrayBuffer();
+    const originalBuffer = await audioContext.decodeAudioData(originalArrayBuffer);
+
+    const cleanedArrayBuffer = await cleanedAudioBlob.arrayBuffer();
+    const cleanedBuffer = await audioContext.decodeAudioData(cleanedArrayBuffer);
+
     setTimeout(() => {
       hideProgressOverlay();
       showResults(originalAudioUrl, cleanedAudioUrl);
-      updateWaveforms(audioBuffer);
+      updateWaveforms(originalBuffer, cleanedBuffer); // ⬅️ Now both buffers
     }, 1000);
   } catch (error) {
-    console.error('Error decoding audio data:', error);
-    alert('There was an error processing your audio. Please try a different file.');
+    console.error('Decoding error:', error);
+    alert('There was an error decoding audio.');
     hideProgressOverlay();
   }
 }
@@ -78,7 +97,8 @@ export function downloadCleanedAudio() {
   if (cleanedAudioUrl) {
     const a = document.createElement('a');
     a.href = cleanedAudioUrl;
-    a.download = 'cleaned_audio.mp3'; // Default name
+    // Ensure extension matches what backend returns
+    a.download = 'cleaned_voice.wav';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
