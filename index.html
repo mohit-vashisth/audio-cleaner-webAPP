@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AudioClean - One-Click Audio Enhancement</title>
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./css/upload.css" />
+    <link rel="stylesheet" href="./css/progress.css" />
+    <link rel="stylesheet" href="./css/results.css" />
+    <link rel="stylesheet" href="./css/features.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav>
+          <div class="logo">
+            <span>Audio<span class="accent">Clean</span></span>
+          </div>
+          <ul class="nav-links">
+            <li><a href="#upload">Upload</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#upload" class="btn-primary">Try It Free</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <section id="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1>Clean Your Audio <span class="accent">Instantly</span></h1>
+          <p>One-click audio enhancement powered by advanced AI. Remove background noise, balance levels, and get studio-quality sound in seconds.</p>
+          <a href="#upload" class="btn-primary">Try It Now</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="upload">
+      <div class="container">
+        <h2>Upload Your Audio</h2>
+        <p class="section-subtitle">Drag and drop or click to select your audio file</p>
+        
+        <div class="upload-container">
+          <div class="upload-widget" id="uploadWidget">
+            <div class="upload-widget-inner">
+              <div class="upload-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <p>Drag & Drop Audio or Click to Browse</p>
+              <p class="upload-subtitle">Supports WAV, MP3, FLAC, AAC</p>
+              <input type="file" id="audioFileInput" accept=".wav,.mp3,.flac,.aac" class="file-input" />
+            </div>
+          </div>
+          
+          <div class="upload-actions" id="uploadActions" style="display: none;">
+            <div class="file-info" id="fileInfo"></div>
+            <button class="btn-primary" id="sendButton">Send for Cleaning</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="progress-overlay" id="progressOverlay">
+      <div class="progress-container">
+        <div class="progress-circle">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-circle" stroke="#00FFFF" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+          </svg>
+          <span class="progress-percentage" id="progressPercentage">0%</span>
+        </div>
+        <div class="progress-status" id="progressStatus">Initializing...</div>
+      </div>
+    </div>
+
+    <section id="results" style="display: none;">
+      <div class="container">
+        <h2>Your Audio Results</h2>
+        <p class="section-subtitle">Compare your original audio with the enhanced version</p>
+        
+        <div class="results-container">
+          <div class="audio-comparison">
+            <div class="audio-column original">
+              <h3>Original Audio</h3>
+              <div class="waveform" id="originalWaveform"></div>
+              <audio id="originalAudio" controls></audio>
+            </div>
+            
+            <div class="audio-column cleaned">
+              <h3>Cleaned Audio</h3>
+              <div class="waveform" id="cleanedWaveform"></div>
+              <audio id="cleanedAudio" controls></audio>
+              <button class="btn-download" id="downloadButton">
+                <span>Download Cleaned Audio</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <h2>Powerful Audio Enhancement</h2>
+        <p class="section-subtitle">Professional-grade audio cleaning in one click</p>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon noise-reduction"></div>
+            <h3>AI-Driven Noise Reduction</h3>
+            <p>Remove background noise, hum, and static with advanced AI algorithms that preserve voice quality.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon level-balancing"></div>
+            <h3>Intelligent Level Balancing</h3>
+            <p>Automatically balance audio levels between speech, music, and effects for consistent volume.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon reverb-reduction"></div>
+            <h3>Reverb Reduction</h3>
+            <p>Reduce room echo and reverb while maintaining natural voice resonance for studio-quality sound.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon studio-quality"></div>
+            <h3>Studio-Quality Output</h3>
+            <p>Get professional-grade audio that sounds like it was recorded in a high-end studio.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="container">
+        <h2>About AudioClean</h2>
+        <p class="about-text">AudioClean is the fastest way to get professional-quality audio without expensive equipment or technical expertise. Our AI-powered platform is designed for podcasters, content creators, educators, and anyone who needs crystal-clear audio instantly.</p>
+        <p class="about-text">With just one click, our advanced algorithms analyze your audio, reduce noise, balance levels, and deliver studio-quality sound. No complex settings to adjust, no audio engineering degree required.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <span>Audio<span class="accent">Clean</span></span>
+          </div>
+          <div class="footer-links">
+            <div class="footer-column">
+              <h4>Product</h4>
+              <ul>
+                <li><a href="#">Features</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">FAQ</a></li>
+              </ul>
+            </div>
+            <div class="footer-column">
+              <h4>Company</h4>
+              <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Contact</a></li>
+              </ul>
+            </div>
+            <div class="footer-column">
+              <h4>Legal</h4>
+              <ul>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Terms of Service</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 3R Minds. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="./js/main.js" type="module"></script>
+  </body>
+</html>
