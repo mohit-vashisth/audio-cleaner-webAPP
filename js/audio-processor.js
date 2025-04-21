@@ -3,30 +3,20 @@ import { showResults, updateWaveforms } from './results.js';
 
 // Mock processing stages and messages
 const processingStages = [
-  { name: 'Uploading to server...', duration: 1500 },
-  { name: 'Initializing...', duration: 500 },
-  { name: 'Analyzing audio levels...', duration: 1500 },
-  { name: 'Identifying noise patterns...', duration: 1800 },
-  { name: 'Reducing background noise...', duration: 3500 },
-  { name: 'Balancing audio levels...', duration: 1800 },
-  { name: 'Removing reverb...', duration: 1500 },
-  { name: 'Enhancing clarity...', duration: 1200 },
-  { name: 'Eualizing audio...', duration: 500 },
-  { name: 'Finalizing audio...', duration: 1000 }
+  { name: 'Uploading audio...', duration: 1000 },
+  { name: 'Analyzing waveform...', duration: 1500 },
+  { name: 'Detecting noise profile...', duration: 2000 },
+  { name: 'Processing audio...', duration: 3000 },
+  { name: 'Finalizing output...', duration: 1500 }
 ];
 
 let originalAudioUrl = null;
 let cleanedAudioUrl = null;
 
 export function startProcessing(audioFile) {
-  // Show progress overlay
-  showProgressOverlay();
-  
-  // Create URL for the original audio
-  originalAudioUrl = URL.createObjectURL(audioFile);
-  
-  // Start mock processing
   processAudioStages(audioFile);
+  originalAudioUrl = URL.createObjectURL(audioFile);
+  showProgressOverlay();
 }
 
 async function processAudioStages(audioFile) {
@@ -56,9 +46,10 @@ async function processAudioStages(audioFile) {
     }
 
     updateProgress('Ready!', 100);
-    
+
     cleanedAudioBlob = await response.blob();
     cleanedAudioUrl = URL.createObjectURL(cleanedAudioBlob);
+    
   } catch (err) {
     console.error('Fetch error:', err);
     alert('Backend error while cleaning audio. Try again later.');
@@ -81,6 +72,7 @@ async function processAudioStages(audioFile) {
       showResults(originalAudioUrl, cleanedAudioUrl);
       updateWaveforms(originalBuffer, cleanedBuffer); // ⬅️ Now both buffers
     }, 1000);
+    
   } catch (error) {
     console.error('Decoding error:', error);
     alert('There was an error decoding audio.');
