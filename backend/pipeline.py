@@ -105,5 +105,5 @@ def load_audio(
 
     return info
 
-async def async_pipeline_audio(input_uri, output_uri="output.wav", **kwargs):
+async def async_pipeline_audio(input_uri, output_uri="uploads/output.wav", **kwargs):
     return await run_in_thread(load_audio, input_uri, output_uri, **kwargs)

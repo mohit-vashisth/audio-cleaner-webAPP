@@ -16,27 +16,27 @@ let cleanedAudioUrl = null;
 export function startProcessing(audioFile) {
   processAudioStages(audioFile);
   originalAudioUrl = URL.createObjectURL(audioFile);
-  showProgressOverlay();
 }
 
 async function processAudioStages(audioFile) {
+  showProgressOverlay();
   let totalDuration = processingStages.reduce((sum, stage) => sum + stage.duration, 0);
   let elapsedTime = 0;
-
+  
   for (let i = 0; i < processingStages.length; i++) {
     const stage = processingStages[i];
     updateProgress(stage.name, Math.round((elapsedTime / totalDuration) * 100));
     await sleep(stage.duration);
     elapsedTime += stage.duration;
   }
-
+  
   // 👇 Step 1: Send audio file to FastAPI
   const formData = new FormData();
   formData.append('file', audioFile);
-
+  
   let cleanedAudioBlob;
   try {
-    const response = await fetch('http://localhost:8000/clean-audio', {
+    const response = await fetch('/upload-audio', {
       method: 'POST',
       body: formData
     });
