@@ -12,7 +12,7 @@ app = FastAPI()
 # Allow frontend origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://audio-clean.3rminds"],  # Vite frontend
+    allow_origins=["http://localhost:5176"],  # Vite frontend
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers

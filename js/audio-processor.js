@@ -36,7 +36,7 @@ async function processAudioStages(audioFile) {
   
   let cleanedAudioBlob;
   try {
-    const response = await fetch('/upload-audio', {
+    const response = await fetch('http://127.0.0.1:8000/upload-audio', {
       method: 'POST',
       body: formData
     });
