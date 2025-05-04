@@ -12,17 +12,18 @@ app = FastAPI()
 # Allow frontend origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5176"],  # Vite frontend
+    allow_origins=["https://neuroclear-3rminds.netlify.app/", "http://localhost:5175/"],  # Vite frontend
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
 
 
+
 @app.post("/upload-audio")
 async def upload_audio(file: UploadFile = File(...)):
     try:
-        MAX_SIZE_MB = 100
+        MAX_SIZE_MB = 1000
 
         # Read contents once to measure size
         contents = await file.read()
