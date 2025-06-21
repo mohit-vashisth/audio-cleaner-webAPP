@@ -6,6 +6,9 @@ import noisereduce
 import torchaudio.functional as F
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict
+import asyncio
+import os
 
 @dataclass
 class AudioInfo:
@@ -32,9 +35,33 @@ def denoise_audio(info: AudioInfo) -> AudioInfo:
         y_tensor = y_tensor.unsqueeze(0)
     return AudioInfo(y_tensor, info.sr)
 
+def load_silero_vad():
+    model = torch.jit.load(r"C:\Users\Admin\Documents\audio-cleaner-webAPP\backend\model\silero_vad.jit")
+    model.eval()
+    return model
+
+# Utility: get speech timestamps
+def get_speech_timestamps(audio_tensor: torch.Tensor, model, sampling_rate: int) -> List[Dict[str, int]]:
+    from silero_vad import get_speech_timestamps
+    return get_speech_timestamps(audio_tensor, model, sampling_rate=sampling_rate)
+
+# Now your trimm_audio function
 def trimm_audio(info: AudioInfo) -> AudioInfo:
-    y = torchaudio.transforms.Vad(info.sr)(info.y.clone().detach())
-    return AudioInfo(y, info.sr)
+    model = load_silero_vad()
+    if info.y.dim() == 1:
+        audio = info.y.unsqueeze(0)  # shape: [1, num_samples]
+    else:
+        audio = info.y
+
+    speech_timestamps = get_speech_timestamps(audio, model, sampling_rate=info.sr)
+
+    if not speech_timestamps:
+        return AudioInfo(torch.zeros(1), info.sr)
+
+    speech_segments = [audio[:, ts['start']:ts['end']] for ts in speech_timestamps]
+    trimmed_audio = torch.cat(speech_segments, dim=1)
+
+    return AudioInfo(trimmed_audio, info.sr)
 
 def mono_audio(info: AudioInfo) -> AudioInfo:
     y = torch.mean(info.y, dim=0, keepdim=True)
@@ -67,9 +94,12 @@ def visualize_audio(info: AudioInfo):
     plt.show()
 
 def save_audio(info: AudioInfo, uri="output.wav"):
+    upload_path = os.path.join(os.path.dirname(__file__), "uploads")
+    os.makedirs(upload_path, exist_ok=True)
+    new_path = os.path.join(upload_path, uri)
     if info.y.ndim == 1:
         info.y = info.y.unsqueeze(0)
-    torchaudio.save(uri, info.y, info.sr)
+    torchaudio.save(new_path, info.y, info.sr)
 
 def load_audio(
     input_uri,
@@ -105,5 +135,5 @@ def load_audio(
 
     return info
 
-async def async_pipeline_audio(input_uri, output_uri="uploads/output.wav", **kwargs):
+async def async_pipeline_audio(input_uri, output_uri="output.wav", **kwargs):
     return await run_in_thread(load_audio, input_uri, output_uri, **kwargs)

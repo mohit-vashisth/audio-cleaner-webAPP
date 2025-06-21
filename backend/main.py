@@ -2,17 +2,18 @@ import os
 import shutil
 import uuid
 from fastapi import FastAPI, File, HTTPException, UploadFile, status
+from fastapi import BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-
-from pipeline import async_pipeline_audio
+import time
+from pipeline_v1_1_0 import async_pipeline_audio
 
 app = FastAPI()
 
 # Allow frontend origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://neuroclear-3rminds.netlify.app/", "http://localhost:5175/"],  # Vite frontend
+    allow_origins=["*"],  # Vite frontend
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
@@ -21,9 +22,9 @@ app.add_middleware(
 
 
 @app.post("/upload-audio")
-async def upload_audio(file: UploadFile = File(...)):
+async def upload_audio(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     try:
-        MAX_SIZE_MB = 1000
+        MAX_SIZE_MB = 100
 
         # Read contents once to measure size
         contents = await file.read()
@@ -57,15 +58,29 @@ async def upload_audio(file: UploadFile = File(...)):
             os.remove(old_file_loc)
         except Exception as delete_error:
             print(f"[Warning] Failed to delete original file: {delete_error}")
+        time.sleep(3)
+        background_tasks.add_task(delete_file_safe, new_file_loc)
 
-        return FileResponse(
+        response = FileResponse(
             path=new_file_loc,
             media_type="audio/wav",
-            filename="cleaned_audio.wav"
+            filename="cleaned_audio.wav",
+            background=background_tasks
         )
+
+        return response
+
 
     except Exception as exp:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"your error: {str(exp)}"
         )
+    
+# Define deletion helper
+def delete_file_safe(path: str):
+    try:
+        os.remove(path)
+        print(f"[Info] Deleted processed file: {path}")
+    except Exception as e:
+        print(f"[Warning] Could not delete file: {path} | Error: {e}")
